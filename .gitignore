@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django files
+*.sqlite3
+backend/db.sqlite3
+
+# Media files
+
+# Static files
+backend/test_files
+backend/csv
