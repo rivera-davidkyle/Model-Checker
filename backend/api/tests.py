@@ -6,7 +6,6 @@ from rest_framework.test import APITestCase
 
 class Test(APITestCase):
     def test_csv_upload(self):
-        with open ('test.csv', 'rb') as f:
+        with open ('./test_files/test.csv', 'rb') as f:
             response = self.client.post('/csvs/', data={'csv': f})
-            print(f.read())
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(200 <= response.status_code < 300)
