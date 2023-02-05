@@ -12,15 +12,6 @@ class CSV(models.Model):
         verbose_name = 'CSV'
         verbose_name_plural = 'CSVs'
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.csv:
-            with self.csv.open(mode='rb') as file:
-                contents = file.read()
-                sha1 = hashlib.sha1(contents)
-                self.hash = sha1.hexdigest()
-        super().save(*args, **kwargs)
-
 
 """
 class PredModel(models.Model):
