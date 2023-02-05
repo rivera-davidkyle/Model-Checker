@@ -3,8 +3,8 @@ import hashlib
 
 class CSV(models.Model):
     """Model definition for CSV."""
-
     # TODO: Define fields here
+    name = models.CharField(max_length=100, blank=True)
     csv = models.FileField(upload_to='./csv')
     hash = models.CharField(max_length=40, unique=True, blank=True)
     class Meta:
