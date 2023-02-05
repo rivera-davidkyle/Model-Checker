@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import CSV, PredModel
+from .models import CSV
 
 
 # Register your models here.
 admin.site.register(CSV)
-admin.site.register(PredModel)
