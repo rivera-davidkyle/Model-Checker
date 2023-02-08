@@ -7,9 +7,7 @@ from rest_framework.response import Response
 from .serializers import CSVSerializer
 import pandas as pd
 import numpy as np
-from sklearn import tree
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeRegressor
+from .model_check import mod_check
 
 @api_view(['POST'])
 def upload_csv(request):
@@ -38,13 +36,13 @@ def get_model(request):
         features = df.columns
         X = df.loc[:, features]
         y = df.loc[:, [request.data['target']]]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, train_size = .80)
-        reg = DecisionTreeRegressor(max_depth = 11, random_state = 0)
-        reg.fit(X_train, y_train)
-        score = reg.score(X_test, y_test)
-        print(score)
-        serializer = CSVSerializer(csv)
-        return Response(serializer.data)
+        scoring = request.data['scoring']
+        reg_model = mod_check["DecisionTreeRegressor"](X, y, scoring)
+        response_data = {
+            'Model' : reg_model[0],
+            scoring + " score" : reg_model[1]
+        }
+        return Response(response_data)
         
         
 
