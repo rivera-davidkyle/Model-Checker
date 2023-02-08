@@ -5,6 +5,7 @@ from rest_framework import viewsets, permissions, status, views
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import CSVSerializer
+import pandas as pd
 
 
 @api_view(['POST'])
@@ -15,9 +16,16 @@ def csv_upload(request):
             try:
                 csv = serializer.save()
                 csv.save()
+                df = pd.read_csv(csv.csv.path)
+                features = list(df.columns)
+                print(features)
+                serializer.data['features'] = features
             except IntegrityError as e:
                 return Response({'error': 'Integrity error: {}'.format(e)},
                         status=status.HTTP_400_BAD_REQUEST)
+            print(serializer.data['features'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
 

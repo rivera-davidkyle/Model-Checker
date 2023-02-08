@@ -6,7 +6,8 @@ class CSV(models.Model):
     # TODO: Define fields here
     name = models.CharField(max_length=100, blank=True)
     csv = models.FileField(upload_to='./csv')
-    hash = models.CharField(max_length=40, unique=True, blank=True)
+    hash = models.CharField(max_length=40,  blank=True)
+
     class Meta:
         """Meta definition for CSV."""
         verbose_name = 'CSV'
