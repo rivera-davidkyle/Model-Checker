@@ -20,5 +20,6 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('csvs/', views.csv_upload, name='csv-upload'),
+    path('csvs/', views.upload_csv, name='csv-upload'),
+    path('models/', views.get_model, name='model-get')
 ]

@@ -9,12 +9,12 @@ class CSVSerializer(serializers.ModelSerializer):
         model = CSV
         fields = '__all__'
     def create(self, validated_data):
-        csv_file = validated_data.get('csv')
+        csv_file = validated_data.get('file')
         validated_data['name'] = csv_file.name.split('.')[0]
         contents = csv_file.read().decode('utf-8')
         sha1 = hashlib.sha1(contents.encode('utf-8'))
         validated_data['hash'] = sha1.hexdigest()
-        df = pd.read_csv(StringIO(contents))
+        df = pd.read_csv(StringIO(contents), nrows=1)
         validated_data['features'] = ",".join(df.columns)
         return CSV.objects.create(**validated_data)
     
