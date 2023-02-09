@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from .serializers import CSVSerializer
 import pandas as pd
 import numpy as np
-from .model_check import mod_check
+from .model_check import dtr_test, linear_test, svr_test
 
 @api_view(['POST'])
 def upload_csv(request):
@@ -33,14 +33,19 @@ def get_model(request):
         csv = CSV.objects.get(hash=request.data['hash'])
         df = pd.read_csv(csv.file.path)
         df = df.drop(columns=request.data['drop'].split(","), axis=1)
+        # Select columns with data type float64 or int64
+        df = df.select_dtypes(include=["float64", "int64"])
+        # Get the names of the remaining columns
+        columns = df.columns
+        # Drop all other columns
+        df = df.drop([col for col in df.columns if col not in columns], axis=1)
         features = df.columns
         X = df.loc[:, features]
         y = df.loc[:, [request.data['target']]]
-        scoring = request.data['scoring']
-        reg_model = mod_check["DecisionTreeRegressor"](X, y, scoring)
+        reg_model = dtr_test(X, y)
         response_data = {
-            'Model' : reg_model[0],
-            scoring + " score" : reg_model[1]
+            "Model" : reg_model[0],
+            "Score" : reg_model[1]
         }
         return Response(response_data)
         

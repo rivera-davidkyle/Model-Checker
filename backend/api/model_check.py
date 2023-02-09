@@ -1,55 +1,38 @@
 import pandas as pd
 import numpy as np
 from sklearn import tree
-from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_squared_log_error
-from sklearn.metrics import f1_score, roc_auc_score, roc_curve
-
-def rmse(test, pred):
-    return np.sqrt(mean_squared_error(test, pred))
-reg_check = {
-    "Mean Absolute Error": mean_absolute_error,
-    "Mean Squared Error": mean_squared_error,
-    "Root Mean Squared Error": rmse,
-    "R-squared": r2_score,
-    "Mean Squared Log Error": mean_squared_log_error
-}
-bc_check = {
-    "F1": f1_score,
-    "ROC": [roc_auc_score, roc_curve]
-}
-
-def dtr_test(X, y, scoring):
-    scoring = reg_check[scoring]
-    X_train, X_test, y_train, y_test = train_test_split(X,y,random_state=0,train_size=.80)
-    if scoring != r2_score:
-        best_score = float('inf')
-        best_depth = 1
-        for depth in range(1,26):
-            reg = DecisionTreeRegressor(max_depth=depth,random_state=0)
-            reg.fit(X_train, y_train)
-            y_pred = reg.predict(X_test)
-            score = scoring(y_test, y_pred)
-            if best_score > score:
-                best_score = score
-                best_depth = depth
-        return [repr(DecisionTreeRegressor(max_depth=best_depth,random_state=0)), score]
-    else:
-        best_score = float('-inf')
-        best_depth = 1
-        for depth in range(1,26):
-            reg = DecisionTreeRegressor(max_depth=depth,random_state=0)
-            reg.fit(X_train, y_train)
-            y_pred = reg.predict(X_test)
-            score = scoring(y_test, y_pred)
-            if best_score < score:
-                best_score = score
-                best_depth = depth
-        return [repr(DecisionTreeRegressor(max_depth=best_depth,random_state=0)), score]
-def logis_reg_test(X, y, scoring):
+from sklearn.svm import SVR
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 
 
-mod_check = {
-    "DecisionTreeRegressor": dtr_test
-}
+def dtr_test(X, y):
+    reg = DecisionTreeRegressor(random_state=0)
+    param_grid = {
+        'max_depth': range(1,25),
+        'min_samples_split': range(2,11,2),
+        'min_samples_leaf': range(1,10)
+                }
+    grid_search = RandomizedSearchCV(reg, param_grid, cv=5, n_jobs=-1)
+    grid_search.fit(X, y)
+    return [repr(DecisionTreeRegressor(**grid_search.best_params_)), grid_search.best_score_]
+
+def linear_test(X,y):
+    reg = LinearRegression()
+    param_grid = {'fit_intercept': [True,False]
+                }
+    grid_search = GridSearchCV(reg, param_grid, cv=5, n_jobs=-1)
+    grid_search.fit(X, y)
+    return [repr(LinearRegression(**grid_search.best_params_)), grid_search.best_score_]
+
+def svr_test(X,y):
+    y = np.ravel(y)
+    reg = SVR()
+    param_grid = {
+        'gamma': [1e-7,1e-3,1e1],
+        'C': [0.001, 100.0, 100000.0]
+                }
+    grid_search = RandomizedSearchCV(reg, param_grid, cv=5, n_jobs=-1)
+    grid_search.fit(X, y)
+    return [repr(SVR(**grid_search.best_params_)), grid_search.best_score_]
